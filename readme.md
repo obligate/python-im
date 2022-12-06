@@ -21,8 +21,15 @@ git init
 git add .
 git commit -m "init"
 git remote add gitee git@gitee.com:peterhly/python-im.git
-git remote add github git@github.com:peter/python-im.git
+git remote add github git@github.com:obligate/python-im.git
 git push -u gitee   master
 git push -u github  master
 git remote -v
+```
++ commit
+```
+git add .
+git commit -m "commentxx"
+git push -u gitee   master
+git push -u github  master
 ```
