@@ -279,6 +279,74 @@ def forbidden_page(err):
 ```
 
 ## Flask模板语法与继承
+### 1.什么是模板
+07templatesintro
++ 怎样在浏览器展示HTML文件
++ 理解渲染机制
+  + 没有模板渲染函数怎样在浏览器展示HTML文件
+    + 1.在磁盘读取html字符串
+    + 2.将满足特定规则的内容进行替换
+    + 3.发送给浏览器展示
+  ```
+  @app.route("/show/html")
+  def html_show():
+    # 理解渲染机制
+    # 1. 找到磁盘上的html文件地址(全路径)
+    file_name = os.path.join(os.path.dirname(__file__), "templates", "index.html")
+    # 2. 读取html文件中的内容
+    now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(file_name, 'r', encoding="utf-8") as f:
+        html = f.read()
+        # 3. 替换html中的特殊字符({{time}})
+        html = html.replace("{{time}}", now_time)
+        # 4. 将html的内容发送给浏览器
+        return html
+  ```
++ 什么是模板
+  + 模板其实就是一个包含响应文本的文件，其中用占位符(变量)表示动态部分，告诉模板引擎其具体的值需要从使用的数据中获取
+  + 使用真实值替换变量，再返回最终得到的字符串，这个过程称为渲染
+### 2.模板引擎介绍
++ Flask使用Jinja2作为默认模板引擎
++ 安装
+  + pip安装 `pip install Jinja2`
+  + 源码安装 `python setup.py install`
++ 默认配置
+  + `template_folder="templates"`  -- 模板的默认目录
+  + `render_template()`     -- (x)html自动转义
+  + `render_template_string()` -- 字符串自动转义
+  + `{% autoescape %}` -- 手动设置是否转义
+  + 全局函数和辅助对象 -- 增强模板的功能
+#### 什么是转义
+  + 把有特殊意义的字符显示出来
+    + html标签中的`<>` -- `&lt;&gt;`
+    + 代码中的`&` -- `&amp;`
+    ![特殊字符转义对照表](img/006.png)
+#### 全局对象
+  + `config`    -- Flask的配置信息
+  + `request`   -- 请求对象
+  + `session`   -- 会话对象
+  + `g`         -- 请求香港的全局变量（如：g.user)
+#### 全局函数
++ `url_for()` URL解析函数（如：静态文件地址解析、链接跳转地址解析）
++ `get_flashed_messages()`  会话消息
+
+#### 上下文处理器
++ 在模板的上下文中添加新的内容
++ 内容可以是变量，也可以是函数
+```
+@app.context_processor
+def inject_user():
+    return dict(user=g.user)
+```
+### 3.模板中变量的使用
+### 4.模板语法 - 标签
+### 5.模板语法 - 过滤器
+### 6.模板语法 - 全局函数
+### 7.模板中的宏
+### 8.模板的继承与包含
+### 9.消息闪现
+
+
 ## Flask中的ORM使用
 ## Flask表单的实现
 
