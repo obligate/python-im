@@ -16,7 +16,7 @@ virtualenv venv-im
 # 激活虚拟环境  
 source venv-im/bin/activate
 #退出虚拟环境  
-deactivate`
+deactivate
 ```
 + windows创建虚拟环境
 ```
@@ -203,28 +203,101 @@ def list_user_opt(page=1):
     return "您好，你是user1第{}页用户".format(page)
 ```
 ### 5. flask请求与响应报文
+#### 路由分发
+![请求分派](img/005.png)
+#### 上下文对象
++ 应用上下文
+  + current_app 当前应用的实例
+  + g  处理请求时的临时存储对象，每次请求都会重设这个变量
++ 请求上下文
+  + request  请求对象，封装了客户端发出的HTTP请求中的内容
+  + session  用户会话（dict），各请求之间的数据共享
++ 在分派请求之前激活应用上下文和请求上下文
++ 在请求处理完成后将其删除
+#### 请求报文
++ 请求报文常见参数
+  + method: 请求的类型(GET/POST/OPTIONS等)
+  + form: POST请求数据dict
+  + args: GET请求数据dict
+  + values: POST请求和GET请求数据集合dict
+  + files: 上传的文件数据dict
+  + cookies: 请求中的cookie dict
+  + headers: HTTP请求头
++ 请求钩子
+  + 如下场景如何实现？
+    + 每个请求中都要验证用户信息（是否已登录，是否有权限访问）
+    + 限制来自某些IP的恶意请求
+  + 使用钩子函数可以减少重复代码的编写，便于维护
+  + `before_first_request` 服务器初始化后第一个请求到达前执行
+  + `before_request` 每一个请求到达前执行
+  + `after_request` 每次请求处理完成后执行，如果请求过程中产生了异常，则不执行
+  + `teardown_reqeust` 每次请求处理完成之后执行，如果请求过程中产生了异常也执行
+#### 响应报文
++ 响应
+  + 可以是字符串
+  + 可以是元组(tuple)
+    + `(response,status,headers)`
+    + `(response,headers)`
++ 响应报文
+  + 响应元组
+    + `response` 响应内容
+    + `status` 响应状态码
+    + `headers` 响应头信息
+  + 使用make_response代替
+
 ### 6. flask视图
+#### 重定向等内部视图
++ `redirect()`实现重定向
+```
+@app.route("/index")
+def index():
+    return "index"
+
+
+@app.route("/")
+def hello_world():
+    # 访问/时重定向到/index这个页面
+    return redirect("/index")
+```
++ `abort()` 处理错误
+```
+@app.route("/ab2")
+def ab2_index():
+    # 当用户不满足某些条件的时候，就触发异常
+    # ip拦截
+    ip_list = ["127.0.0.2"]
+    ip = request.remote_addr
+    if ip in ip_list:
+        abort(403)
+    return "hello success"
+
+
+@app.errorhandler(403)
+def forbidden_page(err):
+    print(err)
+    return "您没有权限访问，请联系管理员开通权限"
+```
 
 ## Flask模板语法与继承
 ## Flask中的ORM使用
 ## Flask表单的实现
 
 ## Pycharm快捷键
-ctrl+shift+f10 ：运行脚本
-ctrl+/ ：注释行
-ctrl+p ：查看函数参数
-ctrl+Space ：基本的代码完成,可以根据需要调整 Ctrl + J
-shift+enter ：另起一行
-Alt + Enter : import导入
-Ctrl + Alt + Space : 快速导入任意类
-Ctrl + F12       弹出文件结构
-Ctrl + H          类型层次结构
-Ctrl + Shift + H   方法层次结构
-Ctrl + Alt + H     调用层次结构
++ ctrl+shift+f10 ：运行脚本
++ ctrl+/ ：注释行
++ ctrl+p ：查看函数参数
++ ctrl+Space ：基本的代码完成,可以根据需要调整 Ctrl + J
++ shift+enter ：另起一行
++ Alt + Enter : import导入
++ Ctrl + Alt + Space : 快速导入任意类
++ Ctrl + F12       弹出文件结构
++ Ctrl + H          类型层次结构
++ Ctrl + Shift + H   方法层次结构
++ Ctrl + Alt + H     调用层次结构
 ## Refer
 + [flask](https://flask.palletsprojects.com/en/2.2.x/)
 + [flask](https://dormousehole.readthedocs.io/en/latest/quickstart.html)
 + [flask 源码](https://github.com/pallets/flask)
 + [pypi](https://pypi.org/)
-+ [英文链接](https://flask.palletsprojects.com/en/1.1.x/extensiondev/)
-+ [中文链接](https://dormousehole.readthedocs.io/en/latest/extensiondev.html#extension-dev)
++ [flask扩展英文链接](https://flask.palletsprojects.com/en/1.1.x/extensiondev/)
++ [flask扩展中文链接](https://dormousehole.readthedocs.io/en/latest/extensiondev.html#extension-dev)
