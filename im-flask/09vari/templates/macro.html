@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板中宏的使用</title>
+    <style type="text/css">
+        .input-control{
+            border:1px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+<form action="">
+    {% macro input(name, type="text", value="") -%}
+    <div>
+        <input class="input-control" type="{{ type }}" name="{{name}}" value="{{value|e}}">
+    </div>
+    {%- endmacro%}
+
+    {# 用户名  username #}
+    {{ input("username",value="admin")}}
+    {# 密码  password #}
+    {{ input("password",type="password")}}
+    {# 年龄  age #}
+    {{ input("age",type="number")}}
+    <!--
+    <div>
+        <input type="text" name="username" class="input-control">
+    </div>
+
+    <div>
+        <input type="password" name="password" class="input-control">
+    </div>
+    <div>
+        <input type="number" name="age" class="input-control">
+    </div>
+    -->
+</form>
+</body>
+</html>

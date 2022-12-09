@@ -306,6 +306,7 @@ def forbidden_page(err):
   + 模板其实就是一个包含响应文本的文件，其中用占位符(变量)表示动态部分，告诉模板引擎其具体的值需要从使用的数据中获取
   + 使用真实值替换变量，再返回最终得到的字符串，这个过程称为渲染
 ### 2.模板引擎介绍
+08templatesdefaultengine
 + Flask使用Jinja2作为默认模板引擎
 + 安装
   + pip安装 `pip install Jinja2`
@@ -339,11 +340,229 @@ def inject_user():
     return dict(user=g.user)
 ```
 ### 3.模板中变量的使用
+09vari - index.html
+#### 语法 `{{ value }}`
++ 基本数据类型的渲染 `{{ value }}`
++ dict类型数据的渲染 `{{ object.attribute }} ` 或者 `{{ object['attribute'] }}`
++ list/tuple类型数据的渲染
++ list/tuple嵌套dict复杂类型数据的渲染
 ### 4.模板语法 - 标签
+#### 模板标签语法
+  + 1. 语法 `{% tag %}`
+  + 2. 语法
+  ```
+  {% tag %}
+     内容
+  {% endtag %}
+  ```
+####  if条件表达式
+```
+{% if condition_a %}
+  满足了A条件
+{% elif condition_b %}
+  满足了B条件
+{% else %}
+  都不满足
+{% endif %}
+```
+#### if标签中的is判断
+```
+{% if value is defined %}
+......
+{% endif %}
+```
+#### if内置的判断条件
++ `defined/undefined` 变量是否已经定义
++ `none` 变量是否为None
++ `number/string` 数字/字符串判断
++ `even/odd`  奇偶判断
++ `upper/lower` 大小写判断
+
+#### if标签中的其他逻辑控制
+```
+and, or
+==, !=
+>, <
+>=, <=
+in, not in
+```
+#### for循环
+```
+<ul>
+{% for key,value in data.items() %}
+  <li class="{{ loop.cycle("odd","even")}}">
+  {{ key }} : {{ value }}
+  </li>
+{% else %}
+  <li>暂无数据</li>
+{% endfor %}
+</ul>
+```
+#### for循环体内的变量
++ `loop.index`    当前循环迭代的次数(从1开始)
++ `loop.index0`   当前循环迭代的次数(从0开始)
++ `loop.revindex` 到循环结束需要迭代的次数（从1开始）
++ `loop.revindex0`到循环结束需要迭代的次数（从0开始）
++ `loop.first`    如果是第一次迭代，为True
++ `loop.last`     如果是最后一次迭代，为True
++ `loop.length`   序列的长度
++ `loop.cycle`    在一串序列间期取值的辅助函数
+#### for循环中使用continue/break
+```
+app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+{% for user in users %}
+    {% if loop.index is even %}
+      {% continue %}
+    {% endif %}
+{% endfor %}
+```
+> [添加其他扩展参考](https://jinja.palletsprojects.com/en/3.1.x/extensions/)
+
+#### 添加注释
++ 不会显示在浏览器的HTML中
++ {# 注释内容 #}，在查看源码中不可见
++ 去除HTML中多余的空白
+```
+在块的开始或者结束放置一个减号(-), 不能有空格
+{% for item in seq -%}
+  {{ item }}
+{%- endfor %}
+```
+![去除HTML中多余的空白](img/007.png)
+
+#### 设置变量，赋值操作
++ 先设置，后使用，可以通过import导入
+`{% set key,value = (1,2) %}`
++ 使用with代码块，实现块级作用域
+```
+{% with %}
+  {% set value=42 %}
+  {{ value }} 只在代码块中有效
+{% endwith %}
+```
+#### 转义显示
++ 方式一： 视为字符串 `{{ "{{}} {%%}" }}`
++ 方式二： 使用raw标签
+```
+{% raw %}
+  {% for key,value in data.items %}
+    {{ key }} : {{ value }}
+  {% endfor %}
+{% endraw%}
+```
 ### 5.模板语法 - 过滤器
+09vari/user_filter.html
+#### 什么是过滤器
++ 过滤器： 修改变量(如：格式化显示)
++ 用管道符号(|)分隔 `{{ name|striptags }}`
++ 可以链式调用 `{{ name|striptags|title }}`
++ 可以用圆括号传递可选参数 `{{ list|join(",")}}`
+#### 过滤器的使用
++ 方式一： 用管道符号（|） `{{ value|safe }}`
++ 方拾二： 使用标签
+```
+{% filter upper %}
+    This text becomes uppercase
+{% endfilter %}
+```
+#### 内置的过滤器
++ 求绝对值 `{{ value|abs }}`
++ 默认值显示 `default(value, default_value="",boolean=False)`
+  + `{{ value|default("默认值"")}}`
+  + `{{ value|d("默认值")}}`
++ html转义 `{{ value|escape }} 或者 {{ value|e }}`
+```
+<h3>html转义过滤器的使用</h3>
+{% autoescape False %}
+<p>{{ html_value }}</p>
+<p>{{ html_value|e }}</p>
+{% endautoescape %}
+```
++ 富文本内容转义显示 `{{ value|safe }}`
++ 倒序显示 `{{ value|reverse }}`
++ [更多内置过滤器](https://jinja.palletsprojects.com/en/3.1.x/templates/#list-of-builtin-filters)
+
+#### 自定义过滤器
++ 方式一：使用装饰器注册
+```
+@app.template_filter("reverse")
+def reverse_filter(s):
+  return s[::-1]
+```
++ 方式二： 调用函数注册
+```
+def reverse_filter(s):
+    return s[::-1]
+app.jinja_env.filters["reverse"]=reverse_filter
+```
 ### 6.模板语法 - 全局函数
+09vari/global_func.html
++ 全局韩式可在模板中直接使用
++ 示例：
+```
+<ul>
+{% for i in range(10) %}
+  <li> {{ i }}</li>
+{% endfor %}
+</ul>
+```
+#### 模板全局函数
++ `range([start],stop[,step])`
++ `dict(**items)`
++ `cycler(*items)` 可用于css类名的循环
+```
+<h3>cycler函数的使用</h3>
+{% set class_name=cycler("row1","row2")%}
+{% for i in range(10) %}
+<p class="{{ class_name.next() }}">{{ i }}</p>
+{% endfor %}
+```
++ `joiner(sep=",")` 可用于字符串拼接
++ `url_for()` URL解析函数（如：静态文件地址解析、链接跳转地址解析）
 ### 7.模板中的宏
+09vari/macro.html
+#### 什么是宏
++ 把常用的功能抽取出来，使用可重用
++ 简单理解： 宏 ≈ 函数
++ 宏可以写在单独的html文件中
+#### 定义宏
+像书写函数一样定义宏
+```
+{% macro input(name,value="",type="text",size=20) -%}
+<input type="{{ type }}" name="{{name}}" value="{{value|e}}" size="{{ size}}">
+{%- endmacro%}
+```
+#### 使用宏 -- 像调用函数一样调用
+```
+<p> {{ input("username") }}</p>
+<p> {{ input("password",type="password") }}</p>
+```
+
+#### 文件中宏的使用
+09vari/acro_file.html
++ 1. 将前面定义的宏保存为forms.html
++ 2. 导入：
+```
+{% import "forms.html" as forms %}
+{% from "forms.html" import input %}
+```
++ 3. 使用  `<p>{{forms.input("username")}}</p>`
 ### 8.模板的继承与包含
+#### 继承实现
++ 步骤一：将可变的部分圈出来(base.html)
+```
+{% block content %}
+  <!-- 内容区域-->
+{% endblock %}
+```
++ 步骤二： 继承父模板 `{% extends "base.html" %}`
++ 步骤三： 填充新的内容(index.html)
+```
+{% extends "base.html" %}
+{% block content %}
+<!-- 新的内容 -->
+{% endblock %}
+```
 ### 9.消息闪现
 
 
@@ -369,3 +588,5 @@ def inject_user():
 + [pypi](https://pypi.org/)
 + [flask扩展英文链接](https://flask.palletsprojects.com/en/1.1.x/extensiondev/)
 + [flask扩展中文链接](https://dormousehole.readthedocs.io/en/latest/extensiondev.html#extension-dev)
++ [Jinja其他扩展](https://jinja.palletsprojects.com/en/3.1.x/extensions/)
++ [更多内置过滤器](https://jinja.palletsprojects.com/en/3.1.x/templates/#list-of-builtin-filters)

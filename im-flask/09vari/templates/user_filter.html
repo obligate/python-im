@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>过滤器的使用</title>
+</head>
+<body>
+    <h3>不使用过滤器</h3>
+    <p>{{ welcome }}</p>
+    <h3>使用过滤器</h3>
+    <p>{{ welcome|upper }}</p>
+    <h3>使用标签，实现过滤器</h3>
+    <p>
+        {% filter upper %}
+            {{ welcome }}
+        {% endfilter %}
+    </p>
+    <h3>默认值default过滤器的使用</h3>
+    <p>var: {{ var|default("我没有") }}</p>
+    <p>default_var: {{ default_var|default("我没有") }}</p>
+    <p>none: {{ default_none|d("我没有") }}</p>
+    <p>设置为True，none: {{ default_none|d("我没有",True) }}</p>
+
+    <h3>html转义过滤器的使用</h3>
+    {% autoescape False %}
+    <p>{{ html_value }}</p>
+    <p>{{ html_value|e }}</p>
+    {% endautoescape %}
+
+    <h3>自定义过滤器的使用</h3>
+    <p>我的手机号码： {{phone_number}}</p>
+    <p>我的手机号码： {{phone_number|phone_format}}</p>
+</body>
+</html>

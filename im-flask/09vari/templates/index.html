@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <h1 style="color:#f00"> 模板中变量的使用</h1>
+    <h3>1. 简单数据类型的渲染</h3>
+    <p>我的年龄： {{ age }}</p>
+    <p>我的钱包： {{ money }}</p>
+    <p>我的名字： {{ name }}</p><br/>
+    <h3>2. 用户信息dict </h3>
+    <p>username： {{ user_info.username }}</p>
+    <p>nickname： {{ user_info.nickname }}</p>
+    <p>address.city： {{ user_info["address.city"] }}</p>
+    <p>address.area： {{ user_info["address.area"] }}</p><br/>
+    <h3>3. 元组和列表 </h3>
+    <h3>3.1 元组  </h3>
+    <p>
+      {{ tuple_city[0] }}  <br/>
+      {{ tuple_city[1] }}  <br/>
+      {{ tuple_city[2] }}  <br/>
+      {{ tuple_city[3] }}  <br/>
+    </p><br/>
+    <h3>3.2 列表  </h3>
+    <p>
+      {{ list_city[0] }}<br/>
+      {{ list_city[1] }}<br/>
+      {{ list_city[2] }}<br/>
+      {{ list_city[3] }}<br/>
+    </p>
+
+    <h3>4. 复杂的数据结构 </h3>
+    <p>
+      第一个： <br/>
+      用户名： {{ list_user[0].username}}; 地址：{{ list_user[0]["address"]["city"]}}
+    </p>
+  <p>
+      第二个： <br/>
+      用户名： {{ list_user[1].username}}; 地址：{{ list_user[1]["address"]["city"]}}
+    </p>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板中宏的使用，使用forms</title>
+    <style type="text/css">
+        .input-control{
+            border:1px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+<form action="">
+    {% from "forms.html" import input as form_input %}
+
+    {# 用户名  username #}
+    {{ form_input("username",value="admin")}}
+    {# 密码  password #}
+    {{ form_input("password",type="password")}}
+    {# 年龄  age #}
+    {{ form_input("age",type="number")}}
+</form>
+</body>
+</html>
