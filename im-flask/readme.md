@@ -603,7 +603,7 @@ wenda.html   without context
 wenda.html
 + 当前页面的代码复用
 ```
-<title>{%block title %}{% endblock %}</title>
+{%block title %}{% endblock %}
 <h1> {{self.title() }}</h1>
 {% block content %}
 {% endblock %}
@@ -637,6 +637,97 @@ get_flashed_messages(category_filter=["error"])
 app.secret_key = "sk9uhuukk890"
 ```
 ## Flask中的ORM使用
+### ORM介绍
+#### 理解ORM
++ ORM(Object Relational Mapping) 对象关系映射
++ ORM的重要特性
+  + 面向对象的编程思想，方便扩充
+  + 少写（几乎不写）SQL，提升开发效率
+  + 支持多种类型的数据库，方便切换
+  + ORM技术成熟，能解决对大部分问题
+### ORM安装
+#### `flask-sqlclchemy`介绍及安装
++ 安装 
+  + pip安装 `pip install -U Flask-SQLAlchemy --timeout 999`
+  + 源码安装 `python setup.py install`
++ 安装依赖
+  + `pip install mysqlclient`
+#### flask-sqlalchemy配置
++ 数据库URI `SQLALCHEMY_DATABASE_URI` 统一资源标识符(uniform resource identifier,URI)是一个用于标识某一互联网资源名称的字符串
++ MySQL数据库URI参数格式 `mysql://root:root@localhost/mydatabase`
++ 多个数据库支持
+```
+SQLALCHEMY_BINDS={
+  "db1":"mysqldb://localhost/users",
+  "db2":"sqlite:////path/to/appmeta.db"
+}
+```
+### ORM的CURD操作
+#### 数据库模型设计
++ 绑定到Flask对象 `db = SQLAlchemy(app)`
++ ORM模型创建
+```
+class User(db.Model):
+  id = db.Column(db.Integer,primary_key=True)
+```
++ 指定表的名称  `__tablename__="life_user"`
++ 手动创建数据库
++ 创建表`db.create_all(bind="db1")`
++ 删除表 `db.drop_all()`
++ ORM模型自动类型支持
+![ORM模型自动类型支持](img/008.png)
++ 一对多关系，外键关联
+```
+addresses=db.relationship("UserAddress", backref="address",lazy=True)
+```
+#### 新增/修改数据
++ 构造ORM模型对象
+`user = User("admin","admin@example.com")`
++ 添加到`db.session`(备注：可添加多个对象)
+` db.session.add(user) `
++ 提交到数据库
+`db.session.commit()`
+
+#### 物理删除数据
++ 查询ORM模型对象
+`user = User.query.filter_by(username="zhangsan").first()`
++ 添加到db.session
+`db.session.delete(user)`
++ 提交到数据库
+`db.session.commit()`
+
+#### ORM查询
++ 返回结果集(list)
+  + 查询所有数据 `User.query.all()`
+  + 按条件查询
+  ```
+    User.query.filter_by(username="zhangsan")
+    User.query.filter(User.nickname.endswith("三")).all()
+  ```
+  + 排序  `User.query.order_by(User.username)`
+  + 查询TOP10 `User.query.limit(10).all()`
++ 返回单个ORM对象
+  + 根据主键pk查询 `User.query.get(1)`
+  + 获取第一条记录 `User.query.first()`
++ 视图快捷函数： 有则返回，无则返回404
+  + ` first() vs first_or_404() `
+  + ` get()   vs get_or_404() `
++ 多表关联查询
+  + `db.session.query(User).join(Address)`
+  + `User.query.join(Address)`
++ 分页
+  + 方式一： 使用offset和limit  `.offset(offset).limit(limit)`
+  + 方式二：paginate分页支持 `.paginate(page=2,per_page=4)` 返回Pagination的对象
++ Pagination对象
+  + has_prev/has_next  --- 是否有上一页/下一页
+  + items              --- 当前页的数据列表
+  + prev_num/next_num  --- 上一页/下一页的页码
+  + total              --- 总记录数
+  + pages              --- 总页数
++ 结合模板实现分页
+  + 第一步： 准备数据 `list_user = User.query.filter_by(is_valid=1)`
+  + 第二步： 分页 `list_user.paginate(page=2, per_page=4)`
+  + 第三步： 在模板中实现分页操作
 ## Flask表单的实现
 
 ## Pycharm快捷键
