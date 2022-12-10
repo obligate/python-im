@@ -663,6 +663,7 @@ SQLALCHEMY_BINDS={
 }
 ```
 ### ORM的CURD操作
+12orm
 #### 数据库模型设计
 + 绑定到Flask对象 `db = SQLAlchemy(app)`
 + ORM模型创建
@@ -724,12 +725,265 @@ addresses=db.relationship("UserAddress", backref="address",lazy=True)
   + prev_num/next_num  --- 上一页/下一页的页码
   + total              --- 总记录数
   + pages              --- 总页数
+```
+<ul>
+    {% for user in user_page_data.items %}
+    <li>{{ user.username }} - {{ user.password }}</li>
+    {% endfor %}
+</ul>
+{% if user_page_data.has_prev %}
+<a href="{{ url_for('list_user', page=user_page_data.prev_num) }}">上一页</a>
+{% else %}
+<a>上一页</a>
+{% endif %}
+{% if user_page_data.has_next %}
+<a href="{{ url_for('list_user', page=user_page_data.next_num) }}">下一页</a>
+{% else %}
+<a>下一页</a>
+{% endif %}
+</p>
+```
 + 结合模板实现分页
   + 第一步： 准备数据 `list_user = User.query.filter_by(is_valid=1)`
   + 第二步： 分页 `list_user.paginate(page=2, per_page=4)`
   + 第三步： 在模板中实现分页操作
+```
+@app.route('/user/')
+@app.route('/user/<int:page>/')
+def list_user(page=1):
+    """ 用户分页 """
+    per_page = 3  # 每一页的数据大小
+    # 1. 查询用户信息
+    user_ls = User.query
+    # 2. 准备分页的数据
+    user_page_data = user_ls.paginate(page=page, per_page=per_page)
+    return render_template('list_user.html', user_page_data=user_page_data)
+```
 ## Flask表单的实现
+### 表单介绍
+test_form.html
+#### 常见的表单元素
++ 表单标签  `<form>`
+  + `action` 表单提交的`URl`地址
+  + `method` 表单请求的方式（`GET/POST`）
+  + `enctype` 请求内容的形式
+    + `application/x-www-form-urlencoded`
+    + `multipart/form-data`
++ 单号文本框/多行文本框
+  + textarea 多行文本
+  + 单行文本(type的不同值)
+    + text -- 单行文本
+    + password -- 密码
+    + email   -- 邮箱
+    + url     -- URL
+    + number  -- 数字
+    + color   -- 颜色
+    + 日期时间等（date,month,week,time,datetime,datetime-local）
++ 选择(单选、多选、下拉选择)
+  + 单选 `<input type="radio">`
+  + 多选 `<input type="checkbox">`
+  + 下拉选择 `<select> <option></option></select>`
++ 隐藏表单域 `<input type="hidden">`
++ 表单按钮 
+  + `<input type="button">`
+  + `<button></button>`
++ 文件上传框 `<input type="file">`
+#### 在视图中获取表单值
++ GET请求
+```
+request.args.get("name", None)
+```
++ POST请求
+```
+request.form.get("name", None)
+```
+### wtf表单介绍
+page_form.html
+#### flask-wtf表单介绍
++ 集成wtforms
++ CSRF保护
++ 与Flask-Uploads一起支持文件上传
++ 安装
+  + pip安装 `pip install Flask-WTF`
+  + 源码安装 `python setup.py install`
++ 配置（CSRF保护） `WTF_CSRF_SECRET_KEY="a random string"`
+  + 如果使用flash配置了`SECRET_KEY`,`WTF_CSRF_SECRET_KEY`也可以不配置
 
+#### 第一个表单模型
+```
+from flask_wtf import FlaskForm
+from wtforms import StringField
+
+class LoginForm(FlaskForm):
+  username = StringField(label="用户名")
+```
+#### 表单常用字段类型及渲染
++ 表单字段的常用核心参数
+  + label  -- label标签(如：输入框前的蚊子描述)
+  + default  -- 表单的默认值
+  + validators -- 表单验证规则
+  + widget  -- 定制界面显示方式（如：文本框、选择框）
+  + description -- 帮助文字
++ 表单渲染
+  + 使用模板语法渲染表单内容
+    + 表单输入区域： `{{ form.username }}`
+    + 表单label： `{{ form.username.label.text }}`
++ 表单常用字段类型
+  + 文本/字符串
+    + `StringField`  -- 字符串输入
+    + `PasswordField` -- 密码输入
+    + `TextAreaField`  -- 长文本输入
+    + `HiddenField`   -- 隐藏表单域
+  + 数值(整数，小数)
+    + `FloatField`  -- 浮点数输入
+    + `IntegerField` -- 整数输入
+    + `DecimalField` -- 小数输入(更精确)
+  + 选择
+    + `RadioField` -- radio单选
+    + `SelectField` -- 下拉单选
+    + `SelectMultipleField` -- 下拉多选
+    + `BooleanField` -- 勾选（复选框）
+  + 日期/时间
+    + `DateField` -- 日期选择
+    + `DateTimeField` -- 日期时间选择
+  + 文件/文件上传
+    + `FileField`  -- 文件单选
+    + `MultipleFileField` -- 文件多选
+  + 其它
+    + `SubmitField`  -- 提交按钮
+    + `FieldList`  -- 自定义的表单选择列表（如：选择用户对象）
+    + `FormField` -- 自定义多个字段构成的选项
+#### 通过表单保存数据
+page_register.html
++ 第一步： 检测表单是否已经通过验证 `form.validate_on_submit()`
++ 第二步： 获取表单中传递过来的值 `form.field_name.data`
++ 第三步： 业务逻辑代码编写（可结合ORM）
+
+#### CSRF表单保护
++ 默认开启CSRF保护
++ 关闭单个表单CSRF保护 `form = LoginForm(csrf_enabled=False)`
+  + 1. LoginForm
+  ```
+        def __init__(self, csrf_enabled, *args, **kwargs):
+        super().__init__(csrf_enabled=csrf_enabled, *args, **kwargs)
+  ```
+  + 2. app中实例化，csrf_enabled为False
+  ` form = RegisterForm(csrf_enabled=False)`
++ 全局关闭(不推荐) `WTF_CSRF_ENABLED = FALSE`
+#### 同步请求CSRF保护
++ 模板中添加csrf_token
+```
+{{ form.csrf_token }}
+或者
+<input type="hidden" name="csrf_token" value="{{csrf_token() }}"/>
+```
+### 表单验证
+14formvalid
+#### 表单验证
++ 步骤1： 导入内置的表单验证器(或自定义)`from wtforms.validators import DataRequired `
++ 步骤2： 配置到表单字段
+```
+username = StringField("用户名",validators=[InputRequired(),my_validator])
+```
+#### 内置表单验证器
++ `DataRequired/InputRequired` -- 必填
++ `Email/URL/UUID`   -- 电子邮箱/URL/UUID
++ `Length(min=-1, max=-1, message=None)`  -- 长度范围验证
++ `EqualTo(fieldname, message=None)` -- 两个字段输入的值相等（如：密码确认）
+
+#### 自定义表单验证
++ 场景一： 只有本表单使用 `validate_username`
+```
+from flask_wtf import FlaskForm
+from wtforms import StringField
+class RegisterForm(FlaskForm):
+    username = StringField(label='用户名', default='')
+    password = PasswordField(label='密码', validators=[DataRequired('请输入密码')])
+    birth_date = DateField(label='生日')
+    age = IntegerField(label='年龄')
+    submit = SubmitField('注册')
+
+    def validate_username(self, field):
+        # 强制验证用户名为手机号
+        username = field.data
+        pattern = r'^1[0-9]{10}$'
+        if not re.search(pattern, username):
+            raise ValidationError('请输入手机号码')
+        return field
+```
++ 场景二： 多个表单中使用，如： 验证手机号码 `phone_required`
+```
+import re
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, DateField, IntegerField
+from wtforms.validators import DataRequired, ValidationError
+
+
+def phone_required(form, field):
+    # 自定义的手机号验证
+    # 强制验证用户名为手机号
+    username = field.data
+    pattern = r'^1[0-9]{10}$'
+    if not re.search(pattern, username):
+        raise ValidationError('请输入手机号码')
+    return field
+
+class LoginForm(FlaskForm):
+    """ 登录表单的实现 """
+    username = StringField(label='用户名', default='admin', validators=[phone_required])
+    password = PasswordField(label='密码')
+    submit = SubmitField('登录')
+
+# 用户注册表单
+class RegisterForm(FlaskForm):
+    username = StringField(label='用户名', default='')
+    password = PasswordField(label='密码', validators=[DataRequired('请输入密码')])
+    birth_date = DateField(label='生日')
+    age = IntegerField(label='年龄')
+    submit = SubmitField('注册')
+
+    def validate_username(self, field):
+        # 强制验证用户名为手机号
+        username = field.data
+        pattern = r'^1[0-9]{10}$'
+        if not re.search(pattern, username):
+            raise ValidationError('请输入手机号码')
+        return field
+
+```
+### 图片上传
+15formupload
+#### 两个方式实现文件上传
++ 方式一： 不使用wtf实现
++ 方式二： 使用FileField并添加类型验证
++ 文件名称格式化 `from werkzeug.utils import secure_filename`
+#### 图片上传 - 不使用wtf
+img_upload.html
++ 第一步： 设置form的enctype `enctype="multipart/form-data"`
++ 第二步： 在视图函数中获取文件对象 `request.files`
++ 第三步： 保存文件 `f.save(file_path)`
+#### 图片上传  - 验证
+avatar_upload.html
++ `FileRequired`   -- 文件必须上传验证
++ `FileAllowed`    -- 文件类型验证
+```
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileRequired, FileAllowed
+from wtforms import FileField
+
+
+class UserAvatarForm(FlaskForm):
+    """ 用户头像上传 """
+    avatar = FileField(label='上传头像', validators=[
+        FileRequired('请选择头像文件'),
+        FileAllowed(['png'], '仅支持PNG图片上传')
+    ])
+
+```
+#### 使用扩展: Flask-Uploads
++ 常用文件类型验证
++ 指定文件上传的目录
 ## Pycharm快捷键
 + ctrl+shift+f10 ：运行脚本
 + ctrl+/ ：注释行

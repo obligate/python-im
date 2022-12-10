@@ -15,7 +15,7 @@ def login():
         flash("欢迎回来", "success")
         flash("错误提示", "error")
         return redirect("/mine")
-    return render_template("login.html")
+    return render_template("page_login.html")
 
 
 # 个人中心
