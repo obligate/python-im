@@ -539,7 +539,7 @@ app.jinja_env.filters["reverse"]=reverse_filter
 ```
 
 #### 文件中宏的使用
-09vari/acro_file.html
+09vari/macro_file.html
 + 1. 将前面定义的宏保存为forms.html
 + 2. 导入：
 ```
@@ -548,6 +548,8 @@ app.jinja_env.filters["reverse"]=reverse_filter
 ```
 + 3. 使用  `<p>{{forms.input("username")}}</p>`
 ### 8.模板的继承与包含
+10extendsinclude
+index.html course.html coding.html
 #### 继承实现
 + 步骤一：将可变的部分圈出来(base.html)
 ```
@@ -563,9 +565,77 @@ app.jinja_env.filters["reverse"]=reverse_filter
 <!-- 新的内容 -->
 {% endblock %}
 ```
++ 步骤四： 复用父模板的内容（可选）
+```
+{% extends "base.html" %}
+{% block header %}
+  {{ super() }}
+  <!-- 新的菜单内容 -->
+{% endblock %}
+```
+#### 包含
+article.html wenda.html
++ 步骤一： 将可变的部分拆出来(sidebar.html)
+```
+<div>
+  这是右侧公共的部分
+</div>
+```
++ 步骤二： 将拆出来的部分包进来(index.html)
+```
+{% extends "base.html" %}
+{% block content %}
+<!--页面主要内容区域-->
+{# 公用的区域#}
+{% include "sidebar.html" %}
+{% endblock %}
+```
+#### include标签
+article.html ignore missing
+wenda.html   without context
++ `{% include "sidebar.html" ignore missing %}` 
++ `{% include "sidebar.html" ignore missing with context %}`
++ `{% include "sidebar.html" ignore missing without context %}` 
++ `ignore missing` 如果模板不存在，Jinja2会忽略这条语句
++ `with context/without context` 是否携带当前页面的上下文
+
+#### 代码复用
+wenda.html
++ 当前页面的代码复用
+```
+<title>{%block title %}{% endblock %}</title>
+<h1> {{self.title() }}</h1>
+{% block content %}
+{% endblock %}
+```
+#### 继承与包含的区别
++ 相关模板标签
+  + `{% block sidebar %}{% endblock %}` -- 命名代码块
+  +  `{% extends "base.html" %}`   -- 继承模块
+  + `{% include "header.html" %}`  -- 包含代码块
 ### 9.消息闪现
-
-
+11flashmessages
++ 第一步： 在视图中产生一个消息(提示/警告/错误)
+```
+flash(msg_content, msg_type)
+参数msg_content: 消息内容
+参数msg_type: 消息类型
+```
++ 第二步：在模板中展示消息
+```
+get_flashed_messages(category_filter=["error"])
+参数category_filter:对产生的消息按类别查询
+<ul class="flashes">
+  {% for category,message in  get_flased_messages(with_categories=true) %}
+      <li class="{{ category }}"> {{ message }} </li>
+  {% endfor %}
+</ul>
+```
++ 第三步： 需要设置secret_key
+```
+# session的安全机制，使用flash时需要设置该随机串
+app.secret_key = "sk9uhuukk890"
+```
 ## Flask中的ORM使用
 ## Flask表单的实现
 

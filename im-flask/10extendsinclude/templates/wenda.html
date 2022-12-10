@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title_txt%} life系统 {% endblock %}
+{% block content %}
+
+<aside class="left">
+    左侧内容区域 -- 问答
+    <p>{{ self.title_txt() }}</p>
+</aside>
+<aside class="right">
+    右侧内容区域 -- 问答
+    <p>问题: {{ wenda }}</p>
+    <p>{{ self.title_txt() }}</p>
+    {% include "sidebar.html" without context %}
+</aside>
+
+{% endblock %}
