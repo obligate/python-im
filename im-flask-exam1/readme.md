@@ -44,8 +44,26 @@ app.register_blueprint(accounts, url_prefix='/accounts')
 
 ## v1.2 发布问题
 ### 问题发布
++ 实现发布表单及验证
++ 支持上传"题图"
 ### 问题发布，带图片
++ 安装 flask-ckeditor `pip install flask-ckeditor`
++ 配置Ckeditor并提交发布问题内容
 ### ajax异步请求，原理及实现（异步分页处理）
+#### Ajax 原理
++ 步骤1: 创建XMLHttpRequest/ActiveObject对象
++ 步骤2： 注册回调函数
++ 步骤3： 配置请求参数
++ 步骤4： 发送请求
++ 步骤5： 创建回调
+#### XMLHttpRequest对象
++ 用于在后台与服务器交换数据
++ XMLHttpRequest的几种状态
+  + 0: 对象没有完成初始化
+  + 1: 对象开始发送请求
+  + 2: 对象的请求发送完成
+  + 3: 对象开始读取服务器响应
+  + 4: 对象读取服务器响应结束
 ### Restful风格接口
 
 ## v1.3 评论和点赞
@@ -56,8 +74,12 @@ app.register_blueprint(accounts, url_prefix='/accounts')
 ### 为评论点赞
 
 
-## flask-login 
-* [源码](https://github.com/maxcountryman/flask-login)
-* [文档](https://flask-login.readthedocs.io/en/latest/)
+## 
++ flask-login 
+  * [源码](https://github.com/maxcountryman/flask-login)
+  * [文档](https://flask-login.readthedocs.io/en/latest/)
++ flask-ckeditor
+  * [源码](https://github.com/greyli/flask-ckeditor)
+  * [文档](https://flask-ckeditor.readthedocs.io/en/latest/)
 
 
