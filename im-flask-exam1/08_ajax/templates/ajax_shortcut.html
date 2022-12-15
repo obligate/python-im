@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ajax 快捷函数的使用</title>
+  <script src="/static/js/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+  <p>ajax 快捷函数的使用</p>
+  <a href="javascript:;">点击提交</a>
+  <script>
+    $(function () {
+      $.ajaxSetup({
+          headers: {
+              'appfrom': 'h5'
+          },
+          error: function (event) {
+            console.log(event.status);
+            if(event.status === 401) {
+                alert('请登录')
+            } else {
+               alert('发生了错误')
+            }
+          }
+      })
+      $('a').click(function () {
+        // $.post('http://127.0.0.1:8081/ajax/js', {
+        // $.get('http://127.0.0.1:8081/ajax/js', {
+        $.getJSON('http://127.0.0.1:8081/ajax/json', {
+            'username': 'zhangsan',
+            'password': '123123'
+        }, function (res) {
+           {# res = JSON.parse(res) #}
+          console.log(res);
+          console.log(res.username);
+          alert('请求成功')
+        })
+      })
+    })
+  </script>
+</body>
+</html>

@@ -221,11 +221,11 @@
                   page: page
               }, function (result) {
                   if (result.code === 0) {
-                  var res = result.data
+                  let res = result.data
                   console.log(res);
                   // 绑定事件
                   // 1. 构建jq对象
-                  var html = $(res)
+                  let html = $(res)
                   // 2. 为对象里面的一些元素绑定事件
                   // 点击，查看更多，把详细的那个p标签展示出来，把自己隐藏
                   $('.show-desc', html).click(function () {

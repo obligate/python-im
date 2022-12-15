@@ -64,7 +64,118 @@ app.register_blueprint(accounts, url_prefix='/accounts')
   + 2: 对象的请求发送完成
   + 3: 对象开始读取服务器响应
   + 4: 对象读取服务器响应结束
+
+#### jQuery中的AJAX函数
++ .ajax(options)函数
+  + url     -- 请求地址
+  + method  -- 请求类型
+  + data    -- 请求参数
+  + dataType -- 返回的数据类型(xml/html/json等)
+  + headers  -- 请求头信息
+  + success  -- 请求成功后的回调
+  + error    -- 发生错误后的回调(状态码不为2xx)
+  + complete -- 请求完成后的回调
+
+#### AJAX快捷函数
++ `.post()`     -- post请求
++ `.get()`      -- get请求
+```
+      $('a').click(function () {
+        $.get('http://127.0.0.1:8081/ajax/json', {
+            'username': 'zhangsan',
+            'password': '123123'
+        }, function (res) {
+          res = JSON.parse(res)
+          console.log(res);
+          console.log(res.username);
+          alert('请求成功')
+        })
+      })
+```
++ `.getJSON()`  -- get请求json数据
+```
+      $('a').click(function () {
+        $.getJSON('http://127.0.0.1:8081/ajax/json', {
+            'username': 'zhangsan',
+            'password': '123123'
+        }, function (res) {
+          console.log(res);
+          console.log(res.username);
+          alert('请求成功')
+        })
+      })
+```
++ ajax全局设置
+  + ajaxSetup()全局设置使用场景
+    + 请求响应拦截,如: http状态码为401调整到登录界面
+    + 添加全局参数,如: error:function(event,statusText){}
+    + 添加请求头信息
+```
+ $.ajaxSetup({
+          headers: {
+              'appfrom': 'h5'
+          },
+          error: function (event) {
+            console.log(event.status);
+            if(event.status === 401) {
+                alert('请登录')
+            } else {
+               alert('发生了错误')
+            }
+          }
+      })
+```
 ### Restful风格接口
+#### API步骤
++ 第一步： 后端（视图层）编写数据接口
++ 第二步： 前端（模板层）调用数据接口
++ 第三步:  渲染页面、绑定功能
+#### 什么是RESTful API
++ REST就是一种设计API的模式
++ 是一种网络应用程序的设计风格和开发方式
+#### RESTful API的特点
++ 每一个URI代表1中资源
+  + URI不应该使用动作来描述
+  + 错误示范
+  ```
+  GET     /getUser/1
+  POST    /createUser
+  PUT     /updateUser/1
+  DELETE  /deleteUser/1
+  ```
++ 更"纯净"的URL
+```
+// 所有的用户列表
+http://localhost/users
+// 编号为1的用户详细信息
+http://localhost/users/1
+```
++ 用不同的HTTP请求方式来操作它
+
+  | 类型      | 描述 |
+  | --------- | ---- |
+  | POST      | 新增 |
+  | GET       | 查询 |
+  | PUT/PATCH | 修改 |
+  | delete    | 删除 |
+
++ 更"精简"的方式处理结果
+
+  | 状态码 | 描述                  | 请求方式       |
+  | ------ | --------------------- | -------------- |
+  | 200    | OK                    | GET            |
+  | 201    | CREATED               | POST/PUT/PATCH |
+  | 204    | NO CONTENT            | DELETE         |
+  | 400    | INVALID REQUEST       | POST/PUT/PATCH |
+  | 404    | NOT FOUND             | *              |
+  | 500    | INTERNAL SERVER ERROR | *              |
+
+```
+{
+  'code': 0,
+  'data': ''
+}
+```
 
 ## v1.3 评论和点赞
 ### 回答问题（添加答案）
